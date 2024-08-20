@@ -39,6 +39,9 @@ def discriminative_score_metrics (ori_data, generated_data):
   tf.reset_default_graph()
 
   # Basic Parameters
+  ori_data = np.array(ori_data)             
+  ori_data = ori_data[:,:, np.newaxis]         # 수정!
+
   no, seq_len, dim = np.asarray(ori_data).shape    
     
   # Set maximum sequence length and each sequence length
@@ -48,9 +51,9 @@ def discriminative_score_metrics (ori_data, generated_data):
      
   ## Builde a post-hoc RNN discriminator network 
   # Network parameters
-  hidden_dim = int(dim/2)
-  iterations = 2000
-  batch_size = 128
+  hidden_dim = 1  #int(dim/2)
+  iterations = 200  #2000
+  batch_size = 12    #120
     
   # Input place holders
   # Feature
@@ -78,7 +81,7 @@ def discriminative_score_metrics (ori_data, generated_data):
       d_outputs, d_last_states = tf.nn.dynamic_rnn(d_cell, x, dtype=tf.float32, sequence_length = t)
       y_hat_logit = tf.contrib.layers.fully_connected(d_last_states, 1, activation_fn=None) 
       y_hat = tf.nn.sigmoid(y_hat_logit)
-      d_vars = [v for v in tf.all_variables() if v.name.startswith(vs.name)]
+      d_vars = [v for v in tf.global_variables() if v.name.startswith(vs.name)]
     
     return y_hat_logit, y_hat, d_vars
     
@@ -125,5 +128,5 @@ def discriminative_score_metrics (ori_data, generated_data):
   # Compute the accuracy
   acc = accuracy_score(y_label_final, (y_pred_final>0.5))
   discriminative_score = np.abs(0.5-acc)
-    
+  print(discriminative_score) 
   return discriminative_score  

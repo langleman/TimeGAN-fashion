@@ -34,12 +34,20 @@ def timegan (ori_data, parameters):
   Returns:
     - generated_data: generated time-series data
   """
-  # Initialization on the Graph
+  # Initialization on the Graph 
   tf.reset_default_graph()
 
   # Basic Parameters
-  no, seq_len, dim = np.asarray(ori_data).shape
-    
+  ori_data = np.array(ori_data)              # 수정!
+  ori_data = ori_data[:,:, np.newaxis]      # 수정!    univariate
+  #ori_data = ori_data[np.newaxis, :, np.newaxis]
+
+
+
+  no, seq_len, dim = np.asarray(ori_data).shape            
+  print(f"no:{no}, seq_len:{seq_len}, dim:{dim}")            
+  
+
   # Maximum sequence length and each sequence length
   ori_time, max_seq_len = extract_time(ori_data)
   
@@ -80,7 +88,8 @@ def timegan (ori_data, parameters):
   X = tf.placeholder(tf.float32, [None, max_seq_len, dim], name = "myinput_x")
   Z = tf.placeholder(tf.float32, [None, max_seq_len, z_dim], name = "myinput_z")
   T = tf.placeholder(tf.int32, [None], name = "myinput_t")
-  
+
+
   def embedder (X, T):
     """Embedding network between original feature space to latent space.
     
@@ -91,6 +100,8 @@ def timegan (ori_data, parameters):
     Returns:
       - H: embeddings
     """
+
+    
     with tf.variable_scope("embedder", reuse = tf.AUTO_REUSE):
       e_cell = tf.nn.rnn_cell.MultiRNNCell([rnn_cell(module_name, hidden_dim) for _ in range(num_layers)])
       e_outputs, e_last_states = tf.nn.dynamic_rnn(e_cell, X, dtype=tf.float32, sequence_length = T)
@@ -123,6 +134,7 @@ def timegan (ori_data, parameters):
     Returns:
       - E: generated embedding
     """        
+   
     with tf.variable_scope("generator", reuse = tf.AUTO_REUSE):
       e_cell = tf.nn.rnn_cell.MultiRNNCell([rnn_cell(module_name, hidden_dim) for _ in range(num_layers)])
       e_outputs, e_last_states = tf.nn.dynamic_rnn(e_cell, Z, dtype=tf.float32, sequence_length = T)
@@ -163,6 +175,7 @@ def timegan (ori_data, parameters):
     
   # Embedder & Recovery
   H = embedder(X, T)
+
   X_tilde = recovery(H, T)
     
   # Generator
@@ -226,10 +239,15 @@ def timegan (ori_data, parameters):
     
   # 1. Embedding network training
   print('Start Embedding Network Training')
+  X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)    
+  #print('X_mb, T_mb:::')    #debugging 여기 넣으면 안될듯...
+  # print(X_mb.shape())
+
     
   for itt in range(iterations):
     # Set mini-batch
-    X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)           
+    X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)    
+
     # Train embedder        
     _, step_e_loss = sess.run([E0_solver, E_loss_T0], feed_dict={X: X_mb, T: T_mb})        
     # Checkpoint
@@ -240,12 +258,17 @@ def timegan (ori_data, parameters):
     
   # 2. Training only with supervised loss
   print('Start Training with Supervised Loss Only')
-    
+ 
+
   for itt in range(iterations):
     # Set mini-batch
     X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)    
     # Random vector generation   
     Z_mb = random_generator(batch_size, z_dim, T_mb, max_seq_len)
+
+    # print('Z_mb::::')     
+    # print(Z_mb[:1])
+
     # Train generator       
     _, step_g_loss_s = sess.run([GS_solver, G_loss_S], feed_dict={Z: Z_mb, X: X_mb, T: T_mb})       
     # Checkpoint
@@ -294,6 +317,7 @@ def timegan (ori_data, parameters):
   Z_mb = random_generator(no, z_dim, ori_time, max_seq_len)
   generated_data_curr = sess.run(X_hat, feed_dict={Z: Z_mb, X: ori_data, T: ori_time})    
     
+  print(f'generated_data: {generated_data_curr}')
   generated_data = list()
     
   for i in range(no):
@@ -303,5 +327,10 @@ def timegan (ori_data, parameters):
   # Renormalization
   generated_data = generated_data * max_val
   generated_data = generated_data + min_val
-    
+
+
   return generated_data
+
+
+
+

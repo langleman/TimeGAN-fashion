@@ -37,6 +37,10 @@ def predictive_score_metrics (ori_data, generated_data):
   tf.reset_default_graph()
 
   # Basic Parameters
+
+  ori_data = np.array(ori_data)             #수정!!!
+  ori_data = ori_data[:,:, np.newaxis]
+
   no, seq_len, dim = np.asarray(ori_data).shape
     
   # Set maximum sequence length and each sequence length
@@ -71,14 +75,14 @@ def predictive_score_metrics (ori_data, generated_data):
       p_cell = tf.nn.rnn_cell.GRUCell(num_units=hidden_dim, activation=tf.nn.tanh, name = 'p_cell')
       p_outputs, p_last_states = tf.nn.dynamic_rnn(p_cell, x, dtype=tf.float32, sequence_length = t)
       y_hat_logit = tf.contrib.layers.fully_connected(p_outputs, 1, activation_fn=None) 
-      y_hat = tf.nn.sigmoid(y_hat_logit)
+      y_hat = tf.nn.sigmoid(y_hat_logit) #why sigmoid?
       p_vars = [v for v in tf.all_variables() if v.name.startswith(vs.name)]
     
     return y_hat, p_vars
     
   y_pred, p_vars = predictor(X, T)
-  # Loss for the predictor
-  p_loss = tf.losses.absolute_difference(Y, y_pred)
+  # Loss for the predictora
+  p_loss = tf.compat.v1.losses.absolute_difference(Y, y_pred)
   # optimizer
   p_solver = tf.train.AdamOptimizer().minimize(p_loss, var_list = p_vars)
         
@@ -110,12 +114,12 @@ def predictive_score_metrics (ori_data, generated_data):
   Y_mb = list(np.reshape(ori_data[i][1:,(dim-1)], [len(ori_data[i][1:,(dim-1)]),1]) for i in train_idx)
     
   # Prediction
-  pred_Y_curr = sess.run(y_pred, feed_dict={X: X_mb, T: T_mb})
+  pred_Y_curr = sess.run(y_pred, feed_dict={X: X_mb, T: T_mb})  #recovery layer 넣는 거..?
     
   # Compute the performance in terms of MAE
   MAE_temp = 0
   for i in range(no):
-    MAE_temp = MAE_temp + mean_absolute_error(Y_mb[i], pred_Y_curr[i,:,:])
+    MAE_temp = MAE_temp + mean_absolute_error(Y_mb[i], pred_Y_curr[i,:,:])## 둘다 만들어진거..?
     
   predictive_score = MAE_temp / no
     

@@ -24,6 +24,7 @@ data_loading.py
 import numpy as np
 
 
+
 def MinMaxScaler(data):
   """Min Max normalizer.
   
@@ -87,18 +88,52 @@ def real_data_loading (data_name, seq_len):
   Returns:
     - data: preprocessed data.
   """  
-  assert data_name in ['stock','energy']
+  assert data_name in ['stock','BL_weekly_new_train', 'CT_weekly_new_train', 'JK_weekly_new_train', 'JP_weekly_new_train', 'KC_weekly_new_train', 'TS_weekly_new_train',
+               'KT_weekly_new_train','OP_weekly_new_train','PD_weekly_new_train','SK_weekly_new_train','SL_weekly_new_train','TC_weekly_new_train','VT_weekly_new_train' ]
   
   if data_name == 'stock':
     ori_data = np.loadtxt('data/stock_data.csv', delimiter = ",",skiprows = 1)
-  elif data_name == 'energy':
-    ori_data = np.loadtxt('data/energy_data.csv', delimiter = ",",skiprows = 1)
-        
+
+  elif data_name == 'BL':                                                    #추가
+    ori_data = np.loadtxt('data/BL.csv', delimiter = ",",skiprows = 1)  
+  elif data_name == 'JP':                                                    #추가
+    ori_data = np.loadtxt('data/JP.csv', delimiter = ",",skiprows = 1)  
+
+  elif data_name == 'BL_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/BL_weekly_new_train.csv', delimiter = ",",skiprows = 1)  
+  elif data_name == 'CT_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/CT_weekly_new_train.csv', delimiter = ",",skiprows = 1)
+  elif data_name == 'JK_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/JK_weekly_new_train.csv', delimiter = ",",skiprows = 1)
+  elif data_name == 'JP_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/JP_weekly_new_train.csv', delimiter = ",",skiprows = 1)
+  elif data_name == 'KC_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/KC_weekly_new_train.csv', delimiter = ",",skiprows = 1)
+  elif data_name == 'KT_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/KT_weekly_new_train.csv', delimiter = ",",skiprows = 1)
+  elif data_name == 'OP_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/OP_weekly_new_train.csv', delimiter = ",",skiprows = 1)
+  elif data_name == 'PD_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/PD_weekly_new_train.csv', delimiter = ",",skiprows = 1)
+  elif data_name == 'SK_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/SK_weekly_new_train.csv', delimiter = ",",skiprows = 1)  
+  elif data_name == 'SL_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/SL_weekly_new_train.csv', delimiter = ",",skiprows = 1)  
+  elif data_name == 'TC_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/TC_weekly_new_train.csv', delimiter = ",",skiprows = 1)  
+  elif data_name == 'TS_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/TS_weekly_new_train.csv', delimiter = ",",skiprows = 1)  
+  elif data_name == 'VT_weekly_new_train':                                                    #추가
+    ori_data = np.loadtxt('data/VT_weekly_new_train.csv', delimiter = ",",skiprows = 1)  
+
+    
   # Flip the data to make chronological data
-  ori_data = ori_data[::-1]
+  #ori_data = ori_data[::-1]  #수정... ####################주의
+
   # Normalize the data
   ori_data = MinMaxScaler(ori_data)
-    
+  # print(ori_data[:10])    #10개만 원본 데이터 출력
+
   # Preprocess the dataset
   temp_data = []    
   # Cut data by sequence length

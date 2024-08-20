@@ -21,9 +21,9 @@ from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
-
+import os
    
-def visualization (ori_data, generated_data, analysis):
+def visualization (ori_data, generated_data, analysis,cat):
   """Using PCA or tSNE for generated and original data visualization.
   
   Args:
@@ -41,6 +41,9 @@ def visualization (ori_data, generated_data, analysis):
   
   ori_data = ori_data[idx]
   generated_data = generated_data[idx]
+
+  ori_data = ori_data[:,:, np.newaxis]   #수정!!!!!       univariate 면 여기 주석 풀어여댬!!!!
+
   
   no, seq_len, dim = ori_data.shape  
   
@@ -72,10 +75,17 @@ def visualization (ori_data, generated_data, analysis):
                 c = colors[anal_sample_no:], alpha = 0.2, label = "Synthetic")
   
     ax.legend()  
-    plt.title('PCA plot')
+    plt.title(f'{cat} PCA plot')
     plt.xlabel('x-pca')
     plt.ylabel('y_pca')
     plt.show()
+
+    folder_path = f'/home/langleman/TimeGAN4paper/metric_generated/{cat}/'
+    os.makedirs(folder_path, exist_ok=True)
+    plt.savefig(f'{folder_path}/{cat}_pca_plot.png')  # Save as PNG image
+    plt.close()  # Close the plot to free up resources
+
+    print('PCA print ##')
     
   elif analysis == 'tsne':
     
@@ -100,3 +110,9 @@ def visualization (ori_data, generated_data, analysis):
     plt.xlabel('x-tsne')
     plt.ylabel('y_tsne')
     plt.show()    
+    folder_path = f'/home/langleman/TimeGAN4paper/metric_generated/{cat}/'
+    os.makedirs(folder_path, exist_ok=True)
+    plt.savefig(f'{folder_path}/{cat}_tsne_plot.png')  # Save as PNG image
+    plt.close() 
+
+    print('T-sne print##')
